@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>State Parks Within 100 Miles of Memphis, TN</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 90vh; width: 100vw; }
+    body { margin:0; }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">State Parks Within 100 Miles of Memphis, TN</h2>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Memphis, TN coordinates
+    const center = [35.1495, -90.0490];
+
+    // State parks with their approximate coordinates (you can refine these as needed)
+    const parks = [
+      // Tennessee
+      {name: "T.O. Fuller State Park", lat: 35.0348, lon: -90.0935},
+      {name: "Meeman-Shelby Forest State Park", lat: 35.3451, lon: -90.0598},
+      {name: "Fort Pillow State Historic Park", lat: 35.6586, lon: -89.7444},
+      {name: "Big Hill Pond State Park", lat: 35.0522, lon: -88.8632},
+      {name: "Chickasaw State Park", lat: 35.4222, lon: -88.7794},
+      {name: "Pinson Mounds State Archaeological Park", lat: 35.4773, lon: -88.6843},
+      {name: "Reelfoot Lake State Park", lat: 36.3693, lon: -89.3279},
+      // Arkansas
+      {name: "Hampson Archeological Museum State Park", lat: 35.7000, lon: -90.1444},
+      {name: "Parkin Archeological State Park", lat: 35.2664, lon: -90.5614},
+      {name: "Village Creek State Park", lat: 35.2170, lon: -90.7531},
+      {name: "Mississippi River State Park", lat: 34.6527, lon: -90.0421},
+      {name: "Herman Davis State Park", lat: 35.8465, lon: -90.1096},
+      {name: "Crowley’s Ridge State Park", lat: 35.6012, lon: -90.6791},
+      {name: "Lake Frierson State Park", lat: 35.9857, lon: -90.7410},
+      {name: "Lake Poinsett State Park", lat: 35.8675, lon: -90.6819},
+      {name: "Lake Charles State Park", lat: 36.0753, lon: -91.0734},
+      {name: "Delta Heritage Trail State Park (Barton/Lexa)", lat: 34.5591, lon: -90.7633},
+      {name: "Louisiana Purchase State Park", lat: 34.7616, lon: -91.0737},
+      {name: "Jacksonport State Park", lat: 35.6462, lon: -91.3318},
+      // Mississippi
+      {name: "Wall Doxey State Park", lat: 34.6242, lon: -89.4273},
+      {name: "John W. Kyle State Park", lat: 34.3609, lon: -89.5087},
+      {name: "George P. Cossar State Park", lat: 33.9440, lon: -89.8081},
+      {name: "Hugh White State Park", lat: 33.5504, lon: -89.7881},
+      {name: "Trace State Park", lat: 34.1377, lon: -88.8804},
+      {name: "Tombigbee State Park", lat: 34.1935, lon: -88.6862}
+    ];
+
+    // Initialize map
+    const map = L.map('map').setView(center, 8);
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add marker for Memphis
+    L.marker(center).addTo(map).bindPopup("<b>Memphis, TN (You are here)</b>").openPopup();
+
+    // Add markers for each park
+    parks.forEach(park => {
+      L.marker([park.lat, park.lon])
+        .addTo(map)
+        .bindPopup(`<b>${park.name}</b>`);
+    });
+
+    // Optional: draw 100 mi radius circle
+    L.circle(center, {
+      color: 'blue',
+      fillColor: '#cadfff',
+      fillOpacity: 0.2,
+      radius: 160934 // meters (100 mi)
+    }).addTo(map).bindPopup('100 mile radius');
+
+  </script>
+</body>
+</html>
