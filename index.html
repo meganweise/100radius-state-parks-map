@@ -16,10 +16,9 @@
   <script>
     // Memphis, TN coordinates
     const center = [35.1495, -90.0490];
-
-    // State parks with their approximate coordinates (you can refine these as needed)
+  
     const parks = [
-      // Tennessee
+      // ... (your parks data as before)
       {name: "T.O. Fuller State Park", lat: 35.0348, lon: -90.0935},
       {name: "Meeman-Shelby Forest State Park", lat: 35.3451, lon: -90.0598},
       {name: "Fort Pillow State Historic Park", lat: 35.6586, lon: -89.7444},
@@ -27,7 +26,6 @@
       {name: "Chickasaw State Park", lat: 35.4222, lon: -88.7794},
       {name: "Pinson Mounds State Archaeological Park", lat: 35.4773, lon: -88.6843},
       {name: "Reelfoot Lake State Park", lat: 36.3693, lon: -89.3279},
-      // Arkansas
       {name: "Hampson Archeological Museum State Park", lat: 35.7000, lon: -90.1444},
       {name: "Parkin Archeological State Park", lat: 35.2664, lon: -90.5614},
       {name: "Village Creek State Park", lat: 35.2170, lon: -90.7531},
@@ -40,7 +38,6 @@
       {name: "Delta Heritage Trail State Park (Barton/Lexa)", lat: 34.5591, lon: -90.7633},
       {name: "Louisiana Purchase State Park", lat: 34.7616, lon: -91.0737},
       {name: "Jacksonport State Park", lat: 35.6462, lon: -91.3318},
-      // Mississippi
       {name: "Wall Doxey State Park", lat: 34.6242, lon: -89.4273},
       {name: "John W. Kyle State Park", lat: 34.3609, lon: -89.5087},
       {name: "George P. Cossar State Park", lat: 33.9440, lon: -89.8081},
@@ -48,34 +45,44 @@
       {name: "Trace State Park", lat: 34.1377, lon: -88.8804},
       {name: "Tombigbee State Park", lat: 34.1935, lon: -88.6862}
     ];
-
+  
     // Initialize map
     const map = L.map('map').setView(center, 8);
-
+  
     // Add OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18,
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
-
+  
     // Add marker for Memphis
-    L.marker(center).addTo(map).bindPopup("<b>Memphis, TN (You are here)</b>").openPopup();
-
-    // Add markers for each park
-    parks.forEach(park => {
-      L.marker([park.lat, park.lon])
-        .addTo(map)
-        .bindPopup(`<b>${park.name}</b>`);
-    });
-
-    // Optional: draw 100 mi radius circle
+    L.marker(center).addTo(map).bindPopup("<b>Memphis, TN (You are here)</b>");
+  
+    // Draw 100 mi radius circle
     L.circle(center, {
       color: 'blue',
       fillColor: '#cadfff',
       fillOpacity: 0.2,
       radius: 160934 // meters (100 mi)
     }).addTo(map).bindPopup('100 mile radius');
-
+  
+    // Animate markers one by one
+    function animateMarkers(parks, delay = 350) {
+      parks.forEach((park, i) => {
+        setTimeout(() => {
+          const marker = L.marker([park.lat, park.lon]).addTo(map)
+            .bindPopup(`<b>${park.name}</b>`);
+          // Optional: quick "pop" animation using CSS
+          marker._icon.style.transform = "scale(1.5)";
+          setTimeout(() => {
+            marker._icon.style.transition = "transform 0.2s";
+            marker._icon.style.transform = "scale(1)";
+          }, 30);
+        }, i * delay);
+      });
+    }
+  
+    animateMarkers(parks, 350); // 350ms between points; adjust as you like
   </script>
 </body>
 </html>
