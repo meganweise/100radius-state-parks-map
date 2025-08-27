@@ -17,17 +17,16 @@
       box-shadow: 0 0 3px #155724;
     }
     .red-square {
-      width: 14px;
-      height: 14px;
+      width: 10px;
+      height: 10px;
       background: #d90429;
       border: 2px solid #7d0012;
       box-shadow: 0 0 3px #7d0012;
-      border-radius: 3px;
+      border-radius: 50%;
     }
   </style>
 </head>
 <body>
-  <h2 style="text-align:center;">State Parks Within 100 Miles of Memphis, TN</h2>
   <div id="map"></div>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
@@ -81,20 +80,49 @@
     // Custom small red square icon for Memphis
     const redSquareIcon = L.divIcon({
       className: 'red-square',
-      iconSize: [14, 14],
+      iconSize: [10, 10],
       iconAnchor: [7, 7] // center the square
     });
 
-    // Add marker for Memphis (red square)
-    L.marker(center, {icon: redSquareIcon}).addTo(map).bindPopup("<b>Memphis, TN (You are here)</b>");
+    // Function to animate the red square marker for Memphis
+    function animateRedSquareMarker(latlng, delay = 100) {
+      return new Promise((resolve) => {
+        const marker = L.marker(latlng, {icon: redSquareIcon}).addTo(map).bindPopup("<b>Memphis, TN (You are here)</b>");
+        // Wait for the marker's div element, then animate it
+        setTimeout(() => {
+          const markerEl = marker.getElement();
+          if (markerEl) markerEl.classList.add('visible');
+        }, delay);
+        // Wait for the animation to finish before resolving
+        setTimeout(resolve, delay + 500);
+      });
+    }
 
-    // Draw 100 mi radius circle
-    L.circle(center, {
-      color: 'blue',
-      fillColor: '#cadfff',
-      fillOpacity: 0.2,
-      radius: 160934 // meters (100 mi)
-    }).addTo(map).bindPopup('100 mile radius');
+    // Function to animate growing circle
+    function animateCircle(latlng, finalRadius = 160934, duration = 900) {
+      return new Promise((resolve) => {
+        let start = null;
+        let circle = L.circle(latlng, {
+          color: 'blue',
+          fillColor: '#cadfff',
+          fillOpacity: 0.2,
+          radius: 1 // start tiny
+        }).addTo(map);
+        function growCircle(ts) {
+          if (!start) start = ts;
+          const elapsed = ts - start;
+          let progress = Math.min(elapsed / duration, 1);
+          let radius = 1 + progress * (finalRadius - 1);
+          circle.setRadius(radius);
+          if (progress < 1) {
+            requestAnimationFrame(growCircle);
+          } else {
+            resolve(circle);
+          }
+        }
+        requestAnimationFrame(growCircle);
+      });
+    }
 
     // Function to add markers one by one in order
     function dropMarkersSequentially(parks, delay = 300) {
@@ -107,8 +135,12 @@
       });
     }
 
-    dropMarkersSequentially(parks, 300);
-
+    dropMarkersSequentially(parks, 300);    // Main sequence: animate Memphis, then circle, then parks
+    (async function mainSequence() {
+      await animateRedSquareMarker(center, 100);
+      await animateCircle(center, 160934, 900);
+      dropMarkersSequentially(parks, 300);
+    })();
   </script>
 </body>
 </html>
