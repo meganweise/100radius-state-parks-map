@@ -8,6 +8,22 @@
   <style>
     #map { height: 90vh; width: 100vw; }
     body { margin:0; }
+    .green-circle {
+      width: 18px;
+      height: 18px;
+      background: #2ecc40;
+      border: 2px solid #155724;
+      border-radius: 50%;
+      box-shadow: 0 0 3px #155724;
+    }
+    .red-square {
+      width: 14px;
+      height: 14px;
+      background: #d90429;
+      border: 2px solid #7d0012;
+      box-shadow: 0 0 3px #7d0012;
+      border-radius: 3px;
+    }
   </style>
 </head>
 <body>
@@ -55,8 +71,22 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Add marker for Memphis
-    L.marker(center).addTo(map).bindPopup("<b>Memphis, TN (You are here)</b>");
+    // Custom green circle icon for parks
+    const greenCircleIcon = L.divIcon({
+      className: 'green-circle',
+      iconSize: [18, 18],
+      iconAnchor: [9, 9] // center the circle
+    });
+
+    // Custom small red square icon for Memphis
+    const redSquareIcon = L.divIcon({
+      className: 'red-square',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7] // center the square
+    });
+
+    // Add marker for Memphis (red square)
+    L.marker(center, {icon: redSquareIcon}).addTo(map).bindPopup("<b>Memphis, TN (You are here)</b>");
 
     // Draw 100 mi radius circle
     L.circle(center, {
@@ -70,14 +100,14 @@
     function dropMarkersSequentially(parks, delay = 300) {
       parks.forEach((park, i) => {
         setTimeout(() => {
-          L.marker([park.lat, park.lon])
+          L.marker([park.lat, park.lon], {icon: greenCircleIcon})
             .addTo(map)
             .bindPopup(`<b>${park.name}</b>`);
         }, i * delay);
       });
     }
 
-    dropMarkersSequentially(parks, 300); // 300ms per marker; adjust if you wish
+    dropMarkersSequentially(parks, 300);
 
   </script>
 </body>
