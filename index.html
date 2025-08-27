@@ -8,65 +8,24 @@
   <style>
     #map { height: 90vh; width: 100vw; }
     body { margin:0; }
-    /* --- Pulse Animation CSS --- */
-    .pulse-marker {
-      position: relative;
-      width: 32px;
-      height: 32px;
-      background: transparent;
-    }
-    .pulse-marker .dot {
-      width: 16px;
-      height: 16px;
-      left: 8px;
-      top: 8px;
-      background: #3788e3;
-      border-radius: 50%;
-      position: absolute;
-      box-shadow: 0 0 10px #3788e3;
-      opacity: 0;
-      transition: opacity 0.4s, transform 0.4s;
-      transform: scale(0);
-    }
-    .pulse-marker .pulse {
-      width: 32px;
-      height: 32px;
-      left: 0;
-      top: 0;
-      background: rgba(55, 136, 227, 0.3);
-      border-radius: 50%;
-      position: absolute;
-      animation: pulse 1.2s infinite;
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-    @keyframes pulse {
-      0% { transform: scale(0.8); opacity: 0.7; }
-      70% { transform: scale(2); opacity: 0; }
-      100% { transform: scale(2); opacity: 0; }
-    }
-    .pulse-marker.visible .dot {
-      opacity: 1;
-      transform: scale(1.3);
-      transition: opacity 0.4s, transform 0.3s cubic-bezier(.68,-0.55,.27,1.55);
-    }
-    .pulse-marker.visible .pulse {
-      opacity: 1;
-    }
   </style>
 </head>
 <body>
+  <h2 style="text-align:center;">State Parks Within 100 Miles of Memphis, TN</h2>
   <div id="map"></div>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Fix for GitHub Pages marker icon path (for Memphis marker)
+    // Fix for GitHub Pages marker icon path
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon-2x.png',
       iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
       shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
     });
 
+    // Memphis, TN coordinates
     const center = [35.1495, -90.0490];
+
+    // State parks data
     const parks = [
       {name: "T.O. Fuller State Park", lat: 35.0348, lon: -90.0935},
       {name: "Meeman-Shelby Forest State Park", lat: 35.3451, lon: -90.0598},
@@ -98,16 +57,16 @@
     // Initialize map
     const map = L.map('map').setView(center, 8);
 
-    // Add tile layer
+    // Add OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18,
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Memphis marker
+    // Add marker for Memphis
     L.marker(center).addTo(map).bindPopup("<b>Memphis, TN (You are here)</b>");
 
-    // 100 mi radius circle
+    // Draw 100 mi radius circle
     L.circle(center, {
       color: 'blue',
       fillColor: '#cadfff',
@@ -115,40 +74,12 @@
       radius: 160934 // meters (100 mi)
     }).addTo(map).bindPopup('100 mile radius');
 
-    // Custom pulsing icon
-    const PulseIcon = L.DivIcon.extend({
-      options: {
-        className: '',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16], // anchor at center of icon
-        popupAnchor: [0, -10]
-      },
-      createIcon: function() {
-        const div = document.createElement('div');
-        div.className = 'pulse-marker';
-        div.innerHTML = '<div class="pulse"></div><div class="dot"></div>';
-        return div;
-      }
+    // Add markers for each park
+    parks.forEach(park => {
+      L.marker([park.lat, park.lon])
+        .addTo(map)
+        .bindPopup(`<b>${park.name}</b>`);
     });
-
-    // Animate markers in sequence, with pulse
-    function animatePulseMarkers(parks, delay = 200) {
-      parks.forEach((park, i) => {
-        setTimeout(() => {
-          const marker = L.marker([park.lat, park.lon], {
-            icon: new PulseIcon()
-          }).addTo(map).bindPopup(`<b>${park.name}</b>`);
-          // Animate in
-          setTimeout(() => {
-            const iconDiv = marker.getElement();
-            if (iconDiv) iconDiv.classList.add('visible');
-          }, 50);
-        }, i * delay);
-      });
-    }
-
-    animatePulseMarkers(parks, 200); // 200ms between points
-
   </script>
 </body>
 </html>
